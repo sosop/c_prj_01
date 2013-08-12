@@ -33,6 +33,10 @@ typedef struct node
 
 void menu();
 void Disp(Link header);
+void Add(Link);
+void Query(Link header);
+void Del(Link header);
+void Modify(Link header);
 
 int main()
 {
@@ -80,13 +84,12 @@ int main()
   fclose(fp);
   //=====================从文件中取出数据end==========================
 
-  printf("open file success,the total records is: %d\n",count);
-
 
   while(1)
   {
     menu(); 
     tmp = cur;
+    printf("open file success,the total records is: %d\n",count);
     printf("please input your choice(0-9):");
     scanf("%d",&select);
     if(select == 0)
@@ -149,12 +152,13 @@ void printDate(Node *pp)
 }
 void Wrong()
 {
-  printf("**************8Eorro input,please input any key to continue!\n");
+  printf("**************Eorro input,please input any key to continue!\n");
   getchar();
 }
 void NotFound()
 {
-  printf("*************there are no data that you found");
+  printf("*************there are no data that you found\n");
+  getchar();
 }
 void Disp(Link header)
 {
@@ -228,3 +232,225 @@ Node * locate(Link header,char condition[],char nameornum[])
   }
   return NULL;
 }
+void Add(Link header)
+{
+  Node *cur,*tmp,*p;
+  char flag,num[10],ch;
+
+  cur = header;
+  system("clear");
+  Disp(header);
+  //将移动链表尾
+  while(cur->next != NULL)
+    cur = cur->next;
+  system("clear");
+  while(1) 
+  {
+    stringInput(num,10,"input num(press 0 return:)");  
+    if(strcmp(num,"0") == 0)
+    {
+      return;
+    }
+    flag = '0';
+    tmp = header->next;
+    while(tmp)
+    {
+      if(strcmp(num,tmp->data.num))
+      {
+        flag = '1';
+        break;
+      }
+      tmp = tmp->next;
+    }
+    if(flag == '1')
+    {
+      getchar();
+      printf("the num has exists,are you want to input another ome(y/n):");
+      scanf("%c",&ch);
+      if(ch == 'y' || ch == 'Y')
+      {
+        continue;
+      }
+      else
+      {
+        return;
+      }
+    }
+    else
+    {
+      p = (Node*)malloc(sizeof(Node));
+      p->next = NULL;
+      strcpy(p->data.num,num);
+      stringInput(p->data.name,15,"Name:");
+      p->data.cgrade = numberInput("C grade:");
+      p->data.mgrade = numberInput("math grade:");
+      p->data.egrade = numberInput("English grade:");
+      p->data.total = p->data.cgrade + p->data.mgrade + p->data.egrade;
+      p->data.avg = (float)p->data.total / 3;
+      p->data.level = 0;
+      cur->next = p;
+      cur = p;
+      saveFlag = 1;
+    }
+  }
+}
+void Query(Link header)
+{
+  system("clear");
+  if(!header->next)
+  {
+    printf("\n         ================>no student record \n");
+    return;
+  }
+  int select;
+  char search[15];
+  Node *result;
+  printf("\n ===============>1.search by num    2.search by name \n");
+  printf("==================please choose [1,2]\n");
+
+  scanf("%d",&select);
+
+  if(select == 1)
+  {
+    result = locate(header,search,"num");     
+    if(result)
+    {
+      printf(HEADER1);
+      printf(HEADER2);
+      printf(HEADER3);
+      printDate(result);
+      printf(END);
+      getchar();
+    }
+    else
+    {
+      NotFound();
+      getchar;
+    }
+  }
+  else if(select == 2)
+  {
+    result = locate(header,search,"name");     
+    if(result)
+    {
+      printf(HEADER1);
+      printf(HEADER2);
+      printf(HEADER3);
+      printDate(result);
+      printf(END);
+      getchar();
+    }
+    else
+    {
+      NotFound();
+      getchar;
+    }
+  }
+  else
+  {
+    Wrong();
+    getchar;
+  }
+}
+void Del(Link header)
+{
+  system("clear");
+  if(!header->next)
+  {
+    printf("\n         ================>no student record \n");
+    return;
+  }
+  int select;
+  char delete[15];
+  Node *result,*tmp;
+  printf("\n ===============>1.delete by num    2.delete by name \n");
+  printf("==================please choose [1,2]\n");
+
+  scanf("%d",&select);
+
+  if(select == 1)
+  {
+    result = locate(header,delete,"num");     
+    if(result)
+    {
+      tmp = header;
+      while(tmp->next != result)
+        tmp = tmp->next;
+      tmp->next = result->next;
+      free(result);
+      saveFlag = 1;
+      getchar();
+    }
+    else
+    {
+      NotFound();
+      getchar;
+    }
+  }
+  else if(select == 2)
+  {
+    result = locate(header,delete,"name");     
+    if(result)
+    {
+      tmp = header;
+      while(tmp->next != result)
+        tmp = tmp->next;
+      tmp->next = result->next;
+      free(result);
+      saveFlag = 1;
+      getchar();
+    }
+    else
+    {
+      NotFound();
+      getchar;
+    }
+  }
+  else
+  {
+    Wrong();
+    getchar;
+  }
+}
+void Modify(Link header)
+{
+  system("clear");
+  if(!header->next)
+  {
+    printf("\n         ================>no student record \n");
+    return;
+  }
+  
+  char num[10];
+  Node *result;
+  printf("==================please input the student num\n");
+
+  scanf("%s",num);
+
+
+  result = locate(header,num,"num");     
+  if(result)
+  {
+    printf("Number: %s\n",result->data.num);
+    printf("Name: %s,",result->data.name);
+    stringInput(result->data.name,15,"input new Name:");
+    printf("C language score: %d,",result->data.cgrade);
+    result->data.cgrade = numberInput("input C language new score");
+    printf("Math score: %d,",result->data.mgrade);
+    result->data.cgrade = numberInput("input Math new score");
+    printf("English score: %d,",result->data.egrade);
+    result->data.cgrade = numberInput("input English new score");
+    result->data.total = result->data.cgrade + result->data.mgrade + result->data.egrade;
+    printf("total score: %d,",result->data.egrade);
+    result->data.avg = (float)result->data.total/3;  
+    printf("average score: %d,",result->data.egrade);
+    saveFlag = 1;
+    getchar();
+  }
+  else
+  {
+    NotFound();
+    getchar;
+  }
+}
+
