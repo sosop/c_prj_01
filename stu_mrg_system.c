@@ -29,7 +29,7 @@ typedef struct node
 {
   struct student data;
   struct node *next;
-}Node,*Link;
+}Node,*Link,*Statistic;
 
 void menu();
 void Disp(Link header);
@@ -37,6 +37,9 @@ void Add(Link);
 void Query(Link header);
 void Del(Link header);
 void Modify(Link header);
+void Insert(Link header);
+void printData(Node *pp);
+
 
 int main()
 {
@@ -144,7 +147,7 @@ void menu()
   printf("     * 9.display record       * 0.quit   system\n");
   printf("********************************************************\n");
 }
-void printDate(Node *pp)
+void printData(Node *pp)
 {
   Node *p;
   p = pp;
@@ -176,7 +179,7 @@ void Disp(Link header)
 
   while(p)
   {
-    printDate(p);
+    printData(p);
     p = p->next;
     printf(HEADER3);
   }
@@ -318,7 +321,7 @@ void Query(Link header)
       printf(HEADER1);
       printf(HEADER2);
       printf(HEADER3);
-      printDate(result);
+      printData(result);
       printf(END);
       getchar();
     }
@@ -336,7 +339,7 @@ void Query(Link header)
       printf(HEADER1);
       printf(HEADER2);
       printf(HEADER3);
-      printDate(result);
+      printData(result);
       printf(END);
       getchar();
     }
@@ -420,7 +423,7 @@ void Modify(Link header)
     printf("\n         ================>no student record \n");
     return;
   }
-  
+
   char num[10];
   Node *result;
   printf("==================please input the student num\n");
@@ -453,4 +456,305 @@ void Modify(Link header)
     getchar;
   }
 }
+void Insert(Link header)
+{
+  Node *loc, *tmp,*p;
 
+  char loc_num[10],flag,again;
+  while(1)
+  {
+    tmp = header->next;
+    flag = '0';
+    stringInput(loc_num,10,"input the number after insert\n");
+
+    while(tmp)
+    {
+      if(strcmp(tmp->data.num,loc_num) == 0)
+      {
+        loc = tmp;
+        flag = '1';
+        break;
+      }
+      tmp = tmp->next;
+    }
+
+    if(flag == '0')
+    {
+      getchar();
+      printf("not found number,try again(y/n):\n");  
+      scanf("%c",&again);
+      if(again == 'Y' || again == 'y')
+      {
+        continue;
+      }
+    }
+    else
+    {
+      p = (Node*)malloc(sizeof(Node));
+      if(!p)
+      {
+        printf("memory allocate failure!");
+        return;
+      }
+      printf("input the student info:\n");
+      stringInput(p->data.num,10,"Number:");
+      stringInput(p->data.name,15,"Name");
+      p->data.cgrade = numberInput("C language score:");
+      p->data.mgrade = numberInput("Math score:");
+      p->data.egrade = numberInput("English score:");
+      p->data.total = p->data.cgrade + p->data.mgrade + p->data.egrade;
+      p->data.avg = (float)p->data.total / 3;
+      p->data.level = 0;
+      p->next = loc->next;
+      loc->next = p;
+    }
+    break;
+  }
+}
+void statistics(Link header)
+{
+  Node *tmp,*s_t_header,*s_c_header,*s_m_header,*s_e_header,*freeTmp;
+  s_t_header = (Node*)malloc(sizeof(Node));
+  s_t_header->next = NULL;
+  s_c_header = (Node*)malloc(sizeof(Node));
+  s_c_header->next = NULL;
+  s_m_header = (Node*)malloc(sizeof(Node));
+  s_m_header->next = NULL;
+  s_e_header = (Node*)malloc(sizeof(Node));
+  s_e_header->next = NULL;
+  int max_t = -1,max_c = -1,max_m = -1,max_e = -1;
+  Statistic s_t_tmp,s_c_tmp,s_m_tmp,s_e_tmp;
+  tmp = header->next;
+  if(!tmp)
+  {
+    printf("\n=============>No student data\n");
+    return;
+  }
+  
+  while(tmp)
+  {
+    if(max_t < tmp->data.total || max_t == -1)
+    {
+      max_t = tmp->data.total;
+      s_t_tmp = s_t_header->next;
+      while(s_t_tmp)
+      {
+        freeTmp = s_t_tmp;
+        s_t_tmp = s_t_tmp->next;
+        free(freeTmp);
+      }
+      s_t_tmp = (Node*)malloc(sizeof(Node));
+      strcpy(s_t_tmp->data.num,tmp->data.num);
+      strcpy(s_t_tmp->data.name,tmp->data.name);
+      s_t_tmp->data.cgrade = tmp->data.cgrade;
+      s_t_tmp->data.mgrade = tmp->data.mgrade;
+      s_t_tmp->data.egrade = tmp->data.egrade;
+      s_t_tmp->data.total = tmp->data.total;
+      s_t_tmp->data.avg = tmp->data.avg;
+      s_t_tmp->data.level = tmp->data.level;
+      s_t_header->next = s_t_tmp;
+      s_t_tmp->next = NULL;
+    }
+    else if(max_t == tmp->data.total)
+    {
+      s_t_tmp->next = (Node*)malloc(sizeof(Node));
+      strcpy(s_t_tmp->next->data.num,tmp->data.num);
+      strcpy(s_t_tmp->next->data.name,tmp->data.name);
+      s_t_tmp->next->data.cgrade = tmp->data.cgrade;
+      s_t_tmp->next->data.mgrade = tmp->data.mgrade;
+      s_t_tmp->next->data.egrade = tmp->data.egrade;
+      s_t_tmp->next->data.total = tmp->data.total;
+      s_t_tmp->next->data.avg = tmp->data.avg;
+      s_t_tmp->next->data.level = tmp->data.level;
+      s_t_tmp = s_t_tmp->next;
+    }
+
+    if(max_c < tmp->data.cgrade || max_c == -1)
+    {
+      max_c = tmp->data.cgrade;
+      s_c_tmp = s_c_header->next;
+      while(s_c_tmp)
+      {
+        freeTmp = s_c_tmp;
+        s_c_tmp = s_c_tmp->next;
+        free(freeTmp);
+      }
+      s_c_tmp = (Node*)malloc(sizeof(Node));
+      strcpy(s_c_tmp->data.num,tmp->data.num);
+      strcpy(s_c_tmp->data.name,tmp->data.name);
+      s_c_tmp->data.cgrade = tmp->data.cgrade;
+      s_c_tmp->data.mgrade = tmp->data.mgrade;
+      s_c_tmp->data.egrade = tmp->data.egrade;
+      s_c_tmp->data.total = tmp->data.total;
+      s_c_tmp->data.avg = tmp->data.avg;
+      s_c_tmp->data.level = tmp->data.level;
+      s_c_header->next = s_c_tmp;
+      s_c_tmp->next = NULL;
+    }
+    else if(max_c == tmp->data.cgrade)
+    {
+      s_c_tmp->next = (Node*)malloc(sizeof(Node));
+      strcpy(s_c_tmp->next->data.num,tmp->data.num);
+      strcpy(s_c_tmp->next->data.name,tmp->data.name);
+      s_c_tmp->next->data.cgrade = tmp->data.cgrade;
+      s_c_tmp->next->data.mgrade = tmp->data.mgrade;
+      s_c_tmp->next->data.egrade = tmp->data.egrade;
+      s_c_tmp->next->data.total = tmp->data.total;
+      s_c_tmp->next->data.avg = tmp->data.avg;
+      s_c_tmp->next->data.level = tmp->data.level;
+      s_c_tmp = s_c_tmp->next;
+    }
+
+    if(max_m < tmp->data.mgrade || max_m == -1)
+    {
+      max_m = tmp->data.mgrade;
+      s_m_tmp = s_m_header->next;
+      while(s_m_tmp)
+      {
+        freeTmp = s_m_tmp;
+        s_m_tmp = s_m_tmp->next;
+        free(freeTmp);
+      }
+      s_m_tmp = (Node*)malloc(sizeof(Node));
+      strcpy(s_m_tmp->data.num,tmp->data.num);
+      strcpy(s_m_tmp->data.name,tmp->data.name);
+      s_m_tmp->data.cgrade = tmp->data.cgrade;
+      s_m_tmp->data.mgrade = tmp->data.mgrade;
+      s_m_tmp->data.egrade = tmp->data.egrade;
+      s_m_tmp->data.total = tmp->data.total;
+      s_m_tmp->data.avg = tmp->data.avg;
+      s_m_tmp->data.level = tmp->data.level;
+      s_m_header->next = s_m_tmp;
+      s_m_tmp->next = NULL;
+    }
+    else if(max_m == tmp->data.mgrade)
+    {
+      s_m_tmp->next = (Node*)malloc(sizeof(Node));
+      strcpy(s_m_tmp->next->data.num,tmp->data.num);
+      strcpy(s_m_tmp->next->data.name,tmp->data.name);
+      s_m_tmp->next->data.cgrade = tmp->data.cgrade;
+      s_m_tmp->next->data.mgrade = tmp->data.mgrade;
+      s_m_tmp->next->data.egrade = tmp->data.egrade;
+      s_m_tmp->next->data.total = tmp->data.total;
+      s_m_tmp->next->data.avg = tmp->data.avg;
+      s_m_tmp->next->data.level = tmp->data.level;
+      s_m_tmp = s_m_tmp->next;
+    }
+    
+    if(max_e < tmp->data.egrade || max_e == -1)
+    {
+      max_e = tmp->data.egrade;
+      s_e_tmp = s_e_header->next;
+      while(s_e_tmp)
+      {
+        freeTmp = s_e_tmp;
+        s_e_tmp = s_e_tmp->next;
+        free(freeTmp);
+      }
+      s_e_tmp = (Node*)malloc(sizeof(Node));
+      strcpy(s_e_tmp->data.num,tmp->data.num);
+      strcpy(s_e_tmp->data.name,tmp->data.name);
+      s_e_tmp->data.cgrade = tmp->data.cgrade;
+      s_e_tmp->data.mgrade = tmp->data.mgrade;
+      s_e_tmp->data.egrade = tmp->data.egrade;
+      s_e_tmp->data.total = tmp->data.total;
+      s_e_tmp->data.avg = tmp->data.avg;
+      s_e_tmp->data.level = tmp->data.level;
+      s_e_header->next = s_m_tmp;
+      s_e_tmp->next = NULL;
+    }
+    else if(max_e == tmp->data.egrade)
+    {
+      s_e_tmp->next = (Node*)malloc(sizeof(Node));
+      strcpy(s_e_tmp->next->data.num,tmp->data.num);
+      strcpy(s_e_tmp->next->data.name,tmp->data.name);
+      s_e_tmp->next->data.cgrade = tmp->data.cgrade;
+      s_e_tmp->next->data.mgrade = tmp->data.mgrade;
+      s_e_tmp->next->data.egrade = tmp->data.egrade;
+      s_e_tmp->next->data.total = tmp->data.total;
+      s_e_tmp->next->data.avg = tmp->data.avg;
+      s_e_tmp->next->data.level = tmp->data.level;
+      s_e_tmp = s_e_tmp->next;
+    }
+    tmp = tmp->next;
+  }
+
+  printf("the highest total score:\n");
+  printf(HEADER2);
+  s_t_tmp = s_t_header->next;
+  while(s_t_tmp)
+  {
+    printf(HEADER3);
+    printData(s_t_tmp);
+    s_t_tmp = s_t_tmp->next;
+  }
+  printf(END);
+  
+  printf("the highest math score:\n");
+  printf(HEADER2);
+  s_m_tmp = s_m_header->next;
+  while(s_m_tmp)
+  {
+    printf(HEADER3);
+    printData(s_m_tmp);
+    s_m_tmp = s_m_tmp->next;
+  }
+  printf(END);
+  
+  printf("the highest C language score:\n");
+  printf(HEADER2);
+  s_c_tmp = s_c_header->next;
+  while(s_c_tmp)
+  {
+    printf(HEADER3);
+    printData(s_c_tmp);
+    s_c_tmp = s_c_tmp->next;
+  }
+  printf(END);
+  
+  printf("the highest English score:\n");
+  printf(HEADER2);
+  s_e_tmp = s_e_header->next;
+  while(s_e_tmp)
+  {
+    printf(HEADER3);
+    printData(s_e_tmp);
+    s_e_tmp = s_e_tmp->next;
+  }
+  printf(END);
+  
+  s_t_tmp = s_t_header->next;
+  s_c_tmp = s_c_header->next;
+  s_m_tmp = s_m_header->next;
+  s_e_tmp = s_e_header->next;
+
+  free(s_t_header);
+  free(s_c_header);
+  free(s_m_header);
+  free(s_e_header);
+
+  while(s_t_tmp)
+  {
+    freeTmp = s_t_tmp;
+    s_t_tmp = s_t_tmp->next;
+    free(freeTmp);
+  }
+  while(s_c_tmp)
+  {
+    freeTmp = s_c_tmp;
+    s_c_tmp = s_c_tmp->next;
+    free(freeTmp);
+  }
+  while(s_m_tmp)
+  {
+    freeTmp = s_m_tmp;
+    s_m_tmp = s_m_tmp->next;
+    free(freeTmp);
+  }
+  while(s_e_tmp)
+  {
+    freeTmp = s_e_tmp;
+    s_t_tmp = s_e_tmp->next;
+    free(freeTmp);
+  }
+}
