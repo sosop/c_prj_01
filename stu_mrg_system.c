@@ -39,6 +39,8 @@ void Del(Link header);
 void Modify(Link header);
 void Insert(Link header);
 void printData(Node *pp);
+void Save(Link header);
+void Statistics(Link header);
 
 
 int main()
@@ -110,23 +112,23 @@ int main()
     }
     switch(select)
     {
-      case 1:
+      case 1:Add(header);
         break;
-      case 2:
+      case 2:Del(header);
         break;
-      case 3:
+      case 3:Query(header);
         break;
-      case 4:
+      case 4:Modify(header);
         break;
-      case 5:
+      case 5:Insert(header);
         break;
-      case 6:
+      case 6:Statistics(header);
         break;
       case 7:
         break;
-      case 8:
+      case 8:Save(header);
         break;
-      case 9:Disp(header);
+      case 9:system("clear");Disp(header);
              break;
       default:
              break;
@@ -169,7 +171,7 @@ void Disp(Link header)
   p = header->next;
   if(!p)
   {
-    printf("there is no record!\n");
+    printf("\nthere is no record!\n");
     getchar();
     return;
   }
@@ -511,7 +513,7 @@ void Insert(Link header)
     break;
   }
 }
-void statistics(Link header)
+void Statistics(Link header)
 {
   Node *tmp,*s_t_header,*s_c_header,*s_m_header,*s_e_header,*freeTmp;
   s_t_header = (Node*)malloc(sizeof(Node));
@@ -754,7 +756,43 @@ void statistics(Link header)
   while(s_e_tmp)
   {
     freeTmp = s_e_tmp;
-    s_t_tmp = s_e_tmp->next;
+    s_e_tmp = s_e_tmp->next;
     free(freeTmp);
   }
+}
+/* 
+void sort()
+{
+
+}
+*/
+
+void Save(Link header)
+{
+  FILE *fp;
+  Node *tmp;
+  int count = 0;
+  fp = fopen("./studentInfo","wb");
+  
+  tmp = header->next;
+
+  while(tmp)
+  {
+    if(fwrite(tmp,sizeof(Node),1,fp) == 1)
+    {
+      count++;
+    }
+    tmp = tmp->next;
+  }
+
+  fclose(fp);
+  if(count > 0)
+  {
+    printf("save %d student's records",count);
+  }
+  else
+  {
+    printf("the link has no records.");
+  }
+
 }
